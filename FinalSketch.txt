@@ -1,0 +1,45 @@
+
+#include <Servo.h> 
+#include "NewPing.h"
+
+#define TRIGGER_PIN  10
+#define ECHO_PIN     13
+#define MAX_DISTANCE 400
+
+NewPing sonar(TRIGGER_PIN, ECHO_PIN, MAX_DISTANCE);
+Servo myservo;
+int pos = 0;
+int distance;
+ 
+ 
+void setup() 
+{ Serial.begin(9600);
+  myservo.attach(6);  // attaches the servo on pin 9 to the servo object 
+} 
+ 
+unsigned int integerValue=0;  // Max value is 65535
+char incomingByte;
+ 
+void loop() 
+{ 
+  if (Serial.available() > 0) {   // something came across serial
+    integerValue = 0;         // throw away previous integerValue
+    while(1) {            // force into a loop until 'n' is received
+      incomingByte = Serial.read();
+      if (incomingByte == '\n') break;   // exit the while(1), we're done receiving
+      if (incomingByte == -1) continue;  // if no characters are in the buffer read() returns -1
+      integerValue *= 10;  // shift left 1 decimal place
+      // convert ASCII to integer, add, and shift left 1 decimal place
+      integerValue = ((incomingByte - 48) + integerValue);
+    }
+  
+    myservo.write(integerValue);              // tell servo to go to position in variable 'pos' 
+    delay(100);
+    
+    distance = sonar.ping_cm(); 
+    Serial.println(distance);
+    delay(2000);
+  }
+  
+                                       
+} 
